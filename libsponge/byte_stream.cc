@@ -1,4 +1,5 @@
 #include "byte_stream.hh"
+#include <iostream>
 
 // Dummy implementation of a flow-controlled in-memory byte stream.
 
@@ -55,11 +56,12 @@ void ByteStream::pop_output(const size_t len) {
 std::string ByteStream::read(const size_t len) {
     std::string res;
     size_t i = 0;
-    while (i++ < len) {
+    while (i < len) {
         if (size_ == 0) break;
 	res.push_back(buffer_[begin_ + i % capacity_]);
 	--size_;
 	++bytes_r_;
+	++i;
     }
     begin_ = begin_ + i % capacity_;
     return res;
