@@ -19,7 +19,7 @@ size_t ByteStream::write(const string &data) {
     size_t res(0);
     for (auto c: data) {
         if (size_ < capacity_) {
-	    buffer_[begin_ + size_ % capacity_] = c;
+	    buffer_[(begin_ + size_) % capacity_] = c;
 	    ++size_;
 	    ++res;
 	    ++bytes_w_;
@@ -33,7 +33,7 @@ string ByteStream::peek_output(const size_t len) const {
     std::string res;
     for (size_t i = 0; i < len; ++i) {
         if (i + 1 > size_) break;
-	res.push_back(buffer_[begin_ + i % capacity_]);
+	res.push_back(buffer_[(begin_ + i) % capacity_]);
     }
     return res;
 }
@@ -58,12 +58,12 @@ std::string ByteStream::read(const size_t len) {
     size_t i = 0;
     while (i < len) {
         if (size_ == 0) break;
-	res.push_back(buffer_[begin_ + i % capacity_]);
+	res.push_back(buffer_[(begin_ + i) % capacity_]);
 	--size_;
 	++bytes_r_;
 	++i;
     }
-    begin_ = begin_ + i % capacity_;
+    begin_ = (begin_ + i) % capacity_;
     return res;
 }
 

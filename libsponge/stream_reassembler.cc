@@ -26,6 +26,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
         // may push substring to ByteStream
 	string pushed;
 	for (auto i = first_unass_index_; i < min(index + data.length(), output_.bytes_read() + capacity_); ++i) {
+	    check(begin_);
             if (buffer_[begin_].first) {
                 buffer_[begin_].first = false;
 		--unassembled_bytes_;
@@ -34,6 +35,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
 	    begin_ = (begin_ + 1) % capacity_;
 	}
 	for (auto j = pushed.length(); j < output_.bytes_read() + capacity_ - first_unass_index_; ++j) {
+	    check(begin_);
 	    if (buffer_[begin_].first) {
                 buffer_[begin_].first = false;
 		pushed.push_back(buffer_[begin_].second);
@@ -48,6 +50,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     } else {
 	size_t j = begin_ + index - first_unass_index_ % capacity_;
 	for (auto i = index; i < min(index + data.length(), output_.bytes_read() + capacity_); ++i, j = (j + 1) % capacity_) {
+	    check(j);
             if (!buffer_[j].first) {
 		buffer_[j].first = true;
 		buffer_[j].second = data[i - index];
@@ -61,3 +64,8 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
 size_t StreamReassembler::unassembled_bytes() const { return unassembled_bytes_; }
 
 bool StreamReassembler::empty() const { return unassembled_bytes_ == 0; }
+
+void StreamReassembler::check(size_t index) const {
+    if (index >= capacity_)
+	throw std::out_of_range("Out of range in StreamReassembler!");
+}
