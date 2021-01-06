@@ -11,6 +11,7 @@ using namespace std;
 
 int main() {
     try {
+	cerr << "Begins zero ISN tests" << endl;
         // Unwrap the first byte after ISN
         test_should_be(unwrap(WrappingInt32(1), WrappingInt32(0), 0), 1ul);
         // Unwrap the first byte after the first wrap
@@ -19,6 +20,7 @@ int main() {
         test_should_be(unwrap(WrappingInt32(UINT32_MAX - 1), WrappingInt32(0), 3 * (1ul << 32)), 3 * (1ul << 32) - 2);
         // Unwrap the 10th from last byte before the third wrap
         test_should_be(unwrap(WrappingInt32(UINT32_MAX - 10), WrappingInt32(0), 3 * (1ul << 32)), 3 * (1ul << 32) - 11);
+	cerr << "Finished zero ISN tests" << endl;
         // Non-zero ISN
         test_should_be(unwrap(WrappingInt32(UINT32_MAX), WrappingInt32(10), 3 * (1ul << 32)), 3 * (1ul << 32) - 11);
         // Big unwrap
