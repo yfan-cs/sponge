@@ -23,7 +23,7 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
     uint64_t checkpoint = reassembler_.stream_out().bytes_written() + 1;
     uint64_t stream_index;
     auto abs_seqno = unwrap(header.seqno, isn_, checkpoint);
-    if (abs_seqno == 0)
+    if (header.syn && abs_seqno == 0)
 	stream_index = 0;
     else
 	stream_index = abs_seqno - 1;

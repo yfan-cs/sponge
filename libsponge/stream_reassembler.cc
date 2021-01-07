@@ -48,7 +48,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
 	output_.write(pushed);
 	if (eof_ && empty()) output_.end_input();
     } else {
-	size_t j = begin_ + index - first_unass_index_ % capacity_;
+	size_t j = (begin_ + index - first_unass_index_) % capacity_;
 	for (auto i = index; i < min(index + data.length(), output_.bytes_read() + capacity_); ++i, j = (j + 1) % capacity_) {
 	    check(j);
             if (!buffer_[j].first) {
