@@ -28,9 +28,7 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
     else
 	stream_index = abs_seqno - 1;
     bool eof = header.fin;
-    // auto len = seg.length_in_sequence_space();
     auto str = seg.payload().copy();
-    cout << str << endl;
     reassembler_.push_substring(str, stream_index, eof);
 }
 
