@@ -82,21 +82,18 @@ void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_si
     
     window_size_ = window_size;
     // step 1: Look through outstanding segments
-    bool fill = true;
     while (!segments_outstand_.empty()) {
 	auto segment = segments_outstand_.front();
 	auto upper_seqno = segment.header().seqno + segment.length_in_sequence_space();
 	if (ackno_ - upper_seqno >= 0) {
-	    if (segments_outstand_.front().header().fin)
-		fill = false;
 	    segments_outstand_.pop();
 	}
 	else break;
     }
     if (segments_outstand_.empty()) timer_.stop();
     // step 2: fill window
-    if (window_size > 0 && fill) {
-	fill_window();
+    if (window_size > 0 ) {
+        fill_window();
     }
 }
 
@@ -123,6 +120,8 @@ unsigned int TCPSender::consecutive_retransmissions() const { return consec_retr
 void TCPSender::send_empty_segment() {
     TCPHeader header;
     header.seqno = wrap(next_seqno_, isn_);
+    //if (next_seqno_ == 0) header.syn = true;
+    //if (stream_.eof()) header.fin = true;
     TCPSegment segment;
     segment.header() = header;
     segments_out_.push(segment);

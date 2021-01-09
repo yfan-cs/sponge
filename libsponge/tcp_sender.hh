@@ -124,6 +124,10 @@ class TCPSender {
     //! \brief relative seqno for the next byte to be sent
     WrappingInt32 next_seqno() const { return wrap(next_seqno_, isn_); }
     //!@}
+
+    
+    //! 
+    bool fin_sent() const { return fin_sent_; }
 };
 
 
