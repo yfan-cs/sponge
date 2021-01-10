@@ -32,20 +32,22 @@ void TCPConnection::segment_received(const TCPSegment &seg) {
     receiver_.segment_received(seg);
 
     // if inbound stream ends before outbound stream has reached EOF, linger... = false
-    // if (receiver_.stream_out().input_ended() && (!sender_.stream_in().eof()))
+    // should check fin_sent() because the logic here is that the remote peer closes its 
+    // connection first, without receiving the fin sent by local peer
     if (receiver_.stream_out().input_ended() && (!sender_.fin_sent()))
 	linger_after_streams_finish_ = false;
 
-    done();
-
+    bool replied = false;
     // If ACK flag is set, tells the TCPSender about ackno and window_size
     if (seg.header().ack) {
         sender_.ack_received(seg.header().ackno, seg.header().win);
-	sender_.fill_window();
-	send(false);
+	if (sender_.next_seqno_absolute() > 0) {
+	    sender_.fill_window();
+	    replied = send(false);
+	}
     }
     // If seg occupies any sequence numbers, make sure at least one seg is sent in reply
-    if (seg.length_in_sequence_space() > 0) {
+    if (seg.length_in_sequence_space() > 0 && (!replied)) {
 	sender_.fill_window();
 	if (!send(false))
             sender_.send_empty_segment();
