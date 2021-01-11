@@ -32,20 +32,35 @@
 class NetworkInterface {
   private:
     //! Ethernet (known as hardware, network-access-layer, or link-layer) address of the interface
-    EthernetAddress _ethernet_address;
+    EthernetAddress ethernet_address_;
 
     //! IP (known as internet-layer or network-layer) address of the interface
-    Address _ip_address;
+    Address ip_address_;
 
     //! outbound queue of Ethernet frames that the NetworkInterface wants sent
-    std::queue<EthernetFrame> _frames_out{};
+    std::queue<EthernetFrame> frames_out_{};
+
+    //! Map from IP to Ehternet address
+    std::unordered_map<uint32_t, EthernetAddress> ip_to_eth_{};
+
+    //! queued InternetDatagram waiting to leanrn the Ethernet addr of the next hop
+    std::queue<InternetDatagram> queued_ip_{};
+
+    //! time (in ms) when the arp request sent about the IP addr
+    std::unordered_map<uint32_t, size_t> request_time_{};
+
+    //! time (in ms) when the ip to eth mapping was last learned
+    std::unordered_map<uint32_t, size_t> update_time_{};
+
+    //! current time in ms
+    size_t time_{0};
 
   public:
     //! \brief Construct a network interface with given Ethernet (network-access-layer) and IP (internet-layer) addresses
     NetworkInterface(const EthernetAddress &ethernet_address, const Address &ip_address);
 
     //! \brief Access queue of Ethernet frames awaiting transmission
-    std::queue<EthernetFrame> &frames_out() { return _frames_out; }
+    std::queue<EthernetFrame> &frames_out() { return frames_out_; }
 
     //! \brief Sends an IPv4 datagram, encapsulated in an Ethernet frame (if it knows the Ethernet destination address).
 
