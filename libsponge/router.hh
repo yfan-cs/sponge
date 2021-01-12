@@ -38,11 +38,29 @@ class AsyncNetworkInterface : public NetworkInterface {
     std::queue<InternetDatagram> &datagrams_out() { return _datagrams_out; }
 };
 
+struct Route {
+    uint32_t route_prefix_;
+    uint8_t prefix_length_;
+    std::optional<Address> next_hop_;
+    size_t interface_num_;
+    Route(const uint32_t route_prefix, 
+          const uint8_t prefix_length, 
+	  const std::optional<Address> next_hop,
+	  const size_t interface_num) : 
+	  route_prefix_(route_prefix),
+	  prefix_length_(prefix_length),
+	  next_hop_(next_hop),
+	  interface_num_(interface_num) {}
+};
+
 //! \brief A router that has multiple network interfaces and
 //! performs longest-prefix-match routing between them.
 class Router {
     //! The router's collection of network interfaces
     std::vector<AsyncNetworkInterface> _interfaces{};
+
+    //! stored routes
+    std::vector<Route> routes_{};
 
     //! Send a single datagram from the appropriate outbound interface to the next hop,
     //! as specified by the route with the longest prefix_length that matches the
@@ -69,6 +87,11 @@ class Router {
 
     //! Route packets between the interfaces
     void route();
+  private:
+    // whether ipaddr matches the route_prefix with prefix_length
+    bool prefix_match(const uint32_t route_prefix,
+		      const uint8_t prefix_length,
+		      const uint32_t ipaddr);
 };
 
 #endif  // SPONGE_LIBSPONGE_ROUTER_HH
